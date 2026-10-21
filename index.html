@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kirakira Mart</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff3f8;--card:#fff;--ink:#4a2f4f;--mut:#8a6b8f;--line:#4a2f4f;--pink:#ff9fc4;--mint:#8fe8cc;--sun:#ffd96b;--sky:#9fd2ff;--bi:#4a2f4f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241a3a;--card:#33264f;--ink:#ffeaf4;--mut:#cdb4dc;--line:#ffb3d1}}
+:root[data-theme="dark"]{--bg:#241a3a;--card:#33264f;--ink:#ffeaf4;--mut:#cdb4dc;--line:#ffb3d1}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;color:var(--ink);font:16px/1.5 Fredoka,"Hiragino Maru Gothic ProN",system-ui,sans-serif;background:var(--bg);background-image:radial-gradient(var(--pink) 2px,transparent 2px);background-size:28px 28px;background-attachment:fixed}
+header{text-align:center;padding:18px 12px 4px}
+h1{margin:0;font-size:clamp(26px,7vw,40px);text-shadow:3px 3px 0 var(--pink)}
+.sub{margin:2px 0;color:var(--mut)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;padding:10px}
+.btn,.chip{font:inherit;font-weight:600;cursor:pointer;border:3px solid var(--line);border-radius:14px;padding:6px 12px;background:var(--pink);color:var(--bi);box-shadow:3px 3px 0 var(--line)}
+.chip{border-radius:999px;background:var(--card);color:var(--ink);padding:6px 16px}.chip.on{background:var(--sun);color:var(--bi)}
+.btn.alt{background:var(--mint)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
+.purse{background:var(--sun);color:var(--bi);border:3px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600}
+main{max-width:880px;margin:0 auto;padding:6px 14px 40px}
+.hero{background:var(--sky);color:var(--bi);border:3px solid var(--line);border-radius:20px;padding:12px;text-align:center;font-weight:600;box-shadow:4px 4px 0 var(--line);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:12px 0}
+.card{position:relative;background:var(--card);border:3px solid var(--line);border-radius:22px;padding:14px;box-shadow:4px 4px 0 var(--line)}
+.card h3{margin:2px 0;font-size:17px}.card p{margin:4px 0;color:var(--mut);font-size:14px}
+.em{font-size:54px;text-align:center}
+.badge{position:absolute;top:8px;right:8px;background:var(--pink);color:var(--bi);border:2px solid var(--line);border-radius:999px;padding:0 8px;font-size:12px;font-weight:600}
+.stars{color:#f5a623}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.h2{font-size:21px;font-weight:600;margin:16px 0 6px}
+.msg{background:var(--card);border:3px dashed var(--line);border-radius:16px;padding:8px 12px;margin:8px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎀 Kirakira Mart ✨</h1>
+  <p class="sub">キラキラマート · the cutest pretend shop in the galaxy</p>
+</header>
+<div class="bar"><span class="purse" id="purse"></span></div>
+<main id="app"></main>
+<script>
+const ITEMS=[
+{id:1,e:"🍪",n:"Star Cookie",p:6,c:"snack",r:5,s:1,d:"Crunchy, golden and star-shaped."},
+{id:2,e:"🧋",n:"Moon Boba",p:8,c:"snack",r:5,d:"Milky tea with sparkly moon pearls."},
+{id:3,e:"🍭",n:"Rainbow Lollipop",p:5,c:"snack",r:4,s:1,d:"Seven colours in one swirly lick."},
+{id:4,e:"🍓",n:"Strawberry Mochi",p:7,c:"snack",r:5,d:"Soft, squishy and just for happiness."},
+{id:5,e:"🍙",n:"Smiley Onigiri",p:4,c:"snack",r:4,s:1,d:"A rice ball with a tiny nori smile."},
+{id:6,e:"🍩",n:"Sprinkle Donut",p:5,c:"snack",r:5,d:"Pink glaze and a mountain of sprinkles."},
+{id:7,e:"🐻",n:"Fluffy Bear Plush",p:15,c:"cute",r:5,d:"The softest bear in the whole shop."},
+{id:8,e:"🌈",n:"Cloud Pillow",p:18,c:"cute",r:4,s:1,d:"Like sleeping on a tiny rainbow cloud."}
+];
+let S={coins:50,cart:{},cat:"all",note:"",orders:[]};
+const it=id=>ITEMS.find(i=>i.id==id);
+const total=()=>Object.entries(S.cart).reduce((a,[id,q])=>a+it(id).p*q,0);
+function render(){
+  document.getElementById("purse").textContent="🪙 "+S.coins+" coins";
+  let h=`<div class="hero">🎉 Grand Opening Sale! Everything is super cute ✨</div><div class="chips">`+[["all","All"],["snack","Snacks"],["cute","Cute stuff"]].map(([k,l])=>`<button class="chip ${S.cat===k?"on":""}" data-a="cat" data-id="${k}">${l}</button>`).join("")+`</div><div class="grid">`;
+  ITEMS.filter(i=>S.cat==="all"||i.c===S.cat).forEach(i=>h+=`<div class="card"><span class="badge">${i.s?"SALE":"NEW"}</span><div class="em">${i.e}</div><h3>${i.n}</h3><div class="stars">${"★".repeat(i.r)}${"☆".repeat(5-i.r)}</div><p>${i.d}</p><div class="row"><b>${i.p} 🪙</b><span><button class="btn" data-a="rm" data-id="${i.id}">−</button> ${S.cart[i.id]||0} <button class="btn alt" data-a="add" data-id="${i.id}">+</button></span></div></div>`);
+  h+=`</div><div class="h2">🛒 Your Cart</div><div class="card">`;
+  const e=Object.entries(S.cart);
+  h+=e.length?e.map(([id,q])=>`<div class="row"><span>${it(id).e} ${it(id).n} × ${q}</span><b>${it(id).p*q} 🪙</b></div>`).join(""):`<p>Your cart is empty. Let’s go shopping!</p>`;
+  h+=`<div class="row"><b>Total: ${total()} 🪙</b><button class="btn" data-a="buy">Check out 🎀</button></div></div>`;
+  if(S.note)h+=`<div class="msg">${S.note}</div>`;
+  if(S.orders.length)h+=`<div class="h2">📦 My Orders</div>`+S.orders.map(o=>`<div class="msg">${o}</div>`).join("");
+  document.getElementById("app").innerHTML=h
+}
+function buy(){
+  const t=total();
+  if(!t)S.note="Your cart is empty. Pick something cute first!";
+  else if(t>S.coins)S.note="Oh no, not enough coins! Take something out of your cart.";
+  else{
+    const list=Object.entries(S.cart).map(([id,q])=>it(id).e+"×"+q).join(" ");
+    S.coins-=t;S.cart={};
+    S.orders.unshift(`Order #${1000+Math.floor(Math.random()*9000)}: ${list}. 🚚💨 Zooming to you now!`);
+    S.note="🎉 Yay! Your parcel is on its way. Thank you for shopping at Kirakira Mart!"
+  }
+  render()
+}
+document.getElementById("app").onclick=e=>{
+  const b=e.target.closest("[data-a]");if(!b)return;
+  const a=b.dataset.a,id=b.dataset.id;
+  const cart=d=>{S.cart[id]=Math.max(0,(S.cart[id]||0)+d);if(!S.cart[id])delete S.cart[id];render()};
+  if(a==="cat"){S.cat=id;render()}else if(a==="add")cart(1);else if(a==="rm")cart(-1);else if(a==="buy")buy()
+};
+render();
+</script>
+</body>
+</html>
